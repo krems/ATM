@@ -31,8 +31,8 @@ public class ServerTransport implements MessageListener {
                 Credentials credentials = new Credentials();
                 credentials.userId = logon.userId;
                 credentials.rawcred = logon.credentials;
-                String sessionId = service.userLogin(credentials);
-                if (sessionId != null) {
+                long sessionId = service.userLogin(credentials);
+                if (sessionId >= 0) {
                     storage.createSessionById(sessionId, logon.userId, logon.sourceId, credentials.rawcred);
                     LogonMessage responseBack = new LogonMessage();
                     responseBack.messageType = ProtocolMessageType.LOGIN;
@@ -44,8 +44,8 @@ public class ServerTransport implements MessageListener {
                 break;
             case LOGOUT:
                 LogonMessage logout = (LogonMessage) message;
-                if (logout.sessionId != null) {
-                    storage.cleanUpSession(logout.userId, logout.sessionId);
+                if (logout.sessionId >= 0) {
+                    storage.cleanUpSession(logout.sessionId);
                 }
                 break;
             case INCREASE:

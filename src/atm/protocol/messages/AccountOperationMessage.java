@@ -8,7 +8,7 @@ package atm.protocol.messages;
  * To change this template use File | Settings | File Templates.
  */
 public class AccountOperationMessage extends ProtocolMessage {
-    public String sessionId;
+    public long sessionId;
     public double amount;
     public String accountId;
     public String toAccountId;

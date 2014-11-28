@@ -7,6 +7,7 @@ import atm.protocol.CallbackConnection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,7 +23,7 @@ public class ProcessingService implements ResultCallback {
 
     public static final int EXEC_POOL_SIZE = 16;
 
-    private AtomicInteger sessionIdGen= new AtomicInteger(0);
+    private AtomicLong sessionIdGen= new AtomicLong(1);
     private ServerTransport transport;
 
     private Executor executor = Executors.newFixedThreadPool(EXEC_POOL_SIZE);
@@ -35,18 +36,18 @@ public class ProcessingService implements ResultCallback {
 
     }
 
-    public String userLogin(Credentials username) {
+    public long userLogin(Credentials username) {
        if (validateCredentials(username)) {
            return issueNewSessionId();
        }
-       return null;
+       return -1;
     }
 
     public void userLogout(String sessionId) {
 
     }
 
-    public void processOperation(String sessionId, Operation operation) throws InvalidSessionException {
+    public void processOperation(long sessionId, Operation operation) throws InvalidSessionException {
         validateSession(sessionId);
         final Transaction transaction = transactionController.createTransaction(operation, this);
 
@@ -75,7 +76,7 @@ public class ProcessingService implements ResultCallback {
     }
 
 
-    private synchronized void validateSession(String sessionId) throws InvalidSessionException{
+    private synchronized void validateSession(long sessionId) throws InvalidSessionException{
         double res = 0;
         for(int i = 0; i < 100; i++) {
             res = res + res*i;
@@ -91,8 +92,8 @@ public class ProcessingService implements ResultCallback {
     }
 
 
-    private String issueNewSessionId() {
-        return "Session " + sessionIdGen.incrementAndGet();
+    private long issueNewSessionId() {
+        return sessionIdGen.incrementAndGet();
     }
 
 

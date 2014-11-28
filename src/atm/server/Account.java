@@ -9,7 +9,7 @@ package atm.server;
  */
 public class Account {
 
-    private volatile double balance;
+    private double balance;
     private String id;
 
     public Account(String id) {

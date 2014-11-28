@@ -9,7 +9,7 @@ package atm.server;
  */
 public class Session {
 
-    public Session(Account account, String sessionId, String sourceId, byte[] passHash) {
+    public Session(Account account, long sessionId, String sourceId, byte[] passHash) {
         this.account = account;
         this.sessionId = sessionId;
         this.sourceId = sourceId;
@@ -20,7 +20,7 @@ public class Session {
         return account;
     }
 
-    public String getSessionId(){
+    public long getSessionId(){
         return sessionId;
     }
 
@@ -29,7 +29,7 @@ public class Session {
     }
 
     private Account account;
-    private String sessionId;
+    private long sessionId;
     private String sourceId;
     private byte[] passHash;
 }

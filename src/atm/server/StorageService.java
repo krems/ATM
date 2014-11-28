@@ -13,26 +13,23 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class StorageService {
     private final Map<String, Account> accountHashMap = new HashMap<>();
-    private final ConcurrentHashMap<String, Session> sessionHashMap = new ConcurrentHashMap<>(24, 0.75f, 2);
+    private final ConcurrentHashMap<Long, Session> sessionHashMap = new ConcurrentHashMap<>();
 
-    public Session createSessionById(String sessionId, String userId, String sourceId, byte[] credentials) {
+    public Session createSessionById(long sessionId, String userId, String sourceId, byte[] credentials) {
         Session session = new Session(getOrCreateAccount(userId), sessionId, sourceId, credentials);
         sessionHashMap.put(sessionId, session);
         return session;
     }
 
-    public Session lookupSession(String sessionId) {
+    public Session lookupSession(long sessionId) {
         return sessionHashMap.get(sessionId);
     }
 
     public Session lookupSessionProxyForAccount(String accountId) {
-        return new Session(getOrCreateAccount(accountId), null, null, null);
+        return new Session(getOrCreateAccount(accountId), -1, null, null);
     }
 
-    public void cleanUpSession(String accountId, String sessionId) {
-        synchronized (accountHashMap) {
-//            accountHashMap.remove(accountId);
-        }
+    public void cleanUpSession(long sessionId) {
         sessionHashMap.remove(sessionId);
     }
 

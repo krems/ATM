@@ -13,7 +13,7 @@ import atm.protocol.ClientConnection;
 public class ATM {
 
     ClientTransport clientTransport;
-    String sessionId;
+    long sessionId;
     String currentUser;
 
     public ATM(ClientConnection connection) {
@@ -23,7 +23,7 @@ public class ATM {
     public void login(String userId, byte[] credentials) {
         currentUser = userId;
         sessionId = clientTransport.sendLogin(currentUser, credentials);
-        if (sessionId == null) {
+        if (sessionId < 0) {
             throw new RuntimeException("Can't login");
         }
     }
@@ -31,7 +31,7 @@ public class ATM {
     public void logout() {
         clientTransport.sendLogout(currentUser, sessionId);
         currentUser = null;
-        sessionId = null;
+        sessionId = -1;
     }
 
     public void withdraw(double amount) {

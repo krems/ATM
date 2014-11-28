@@ -10,5 +10,5 @@ package atm.protocol.messages;
 public class LogonMessage extends  ProtocolMessage {
     public String userId;
     public byte[] credentials;
-    public String sessionId;
+    public long sessionId;
 }

@@ -35,7 +35,7 @@ public class ClientTransport implements MessageListener, SessionListener {
 
     public void connect() {}
 
-    String sendLogin(String userId, byte[] credentials) {
+    long sendLogin(String userId, byte[] credentials) {
         protocol.connect();
         LogonMessage message = new LogonMessage();
         message.messageType = ProtocolMessageType.LOGIN;
@@ -45,7 +45,7 @@ public class ClientTransport implements MessageListener, SessionListener {
         return processLogonBack();
     }
 
-    void sendLogout(String userId, String sessionId) {
+    void sendLogout(String userId, long sessionId) {
         LogonMessage message = new LogonMessage();
         message.messageType = ProtocolMessageType.LOGOUT;
         message.sessionId = sessionId;
@@ -54,8 +54,8 @@ public class ClientTransport implements MessageListener, SessionListener {
         protocol.disconnect();
     }
 
-    protected String processLogonBack() {
-        String res = null;
+    protected long processLogonBack() {
+        long res = -1;
         ProtocolMessage message = getMessageBack();
         if (message != null && message.messageType.equals(ProtocolMessageType.LOGIN)) {
             res = ((LogonMessage) message).sessionId;
@@ -86,7 +86,7 @@ public class ClientTransport implements MessageListener, SessionListener {
     }
 
 
-    public void withdraw(String sessionId, double amount) {
+    public void withdraw(long sessionId, double amount) {
         AccountOperationMessage message = new AccountOperationMessage();
         message.messageType = ProtocolMessageType.WITHDRAW;
         message.sessionId = sessionId;
@@ -95,7 +95,7 @@ public class ClientTransport implements MessageListener, SessionListener {
         processAck();
     }
 
-    public void increase(String sessionId, double amount) {
+    public void increase(long sessionId, double amount) {
         AccountOperationMessage message = new AccountOperationMessage();
         message.messageType = ProtocolMessageType.INCREASE;
         message.sessionId = sessionId;
@@ -104,7 +104,7 @@ public class ClientTransport implements MessageListener, SessionListener {
         processAck();
     }
 
-    public void transferTo(String sessionId, double amount, String accountId) {
+    public void transferTo(long sessionId, double amount, String accountId) {
         AccountOperationMessage message = new AccountOperationMessage();
         message.messageType = ProtocolMessageType.TRANSFER_TO;
         message.sessionId = sessionId;
@@ -114,7 +114,7 @@ public class ClientTransport implements MessageListener, SessionListener {
         processAck();
     }
 
-    public double getAccountValue(String sessionId) {
+    public double getAccountValue(long sessionId) {
         AccountOperationMessage message = new AccountOperationMessage();
         message.messageType = ProtocolMessageType.GETVALUE;
         message.sessionId = sessionId;
