@@ -45,10 +45,11 @@ public class ClientTransport implements MessageListener, SessionListener {
         return processLogonBack();
     }
 
-    void sendLogout(String sessionId) {
+    void sendLogout(String userId, String sessionId) {
         LogonMessage message = new LogonMessage();
         message.messageType = ProtocolMessageType.LOGOUT;
         message.sessionId = sessionId;
+        message.userId = userId;
         protocol.sendMessage(message);
         protocol.disconnect();
     }

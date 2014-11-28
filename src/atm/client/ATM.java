@@ -29,7 +29,7 @@ public class ATM {
     }
 
     public void logout() {
-        clientTransport.sendLogout(sessionId);
+        clientTransport.sendLogout(currentUser, sessionId);
         currentUser = null;
         sessionId = null;
     }

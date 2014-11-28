@@ -31,7 +31,7 @@ public class StorageService {
 
     public void cleanUpSession(String accountId, String sessionId) {
         synchronized (accountHashMap) {
-            accountHashMap.remove(accountId);
+//            accountHashMap.remove(accountId);
         }
         sessionHashMap.remove(sessionId);
     }
