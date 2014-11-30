@@ -1,5 +1,7 @@
 package atm.server;
 
+import atm.util.LongObjectHashMap;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +14,7 @@ import java.util.Map;
  */
 public class StorageService {
     private final Map<String, Account> accountHashMap = new HashMap<>(240000);
-    private final HashMap<Long, Session> sessionHashMap = new HashMap<>(24);
+    private final LongObjectHashMap<Session> sessionHashMap = new LongObjectHashMap<>(24);
 
     public Session createSessionById(long sessionId, String userId, long sourceId, byte[] credentials) {
         Session session = new Session(getOrCreateAccount(userId), sessionId, sourceId, credentials);
