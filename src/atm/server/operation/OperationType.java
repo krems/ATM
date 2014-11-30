@@ -15,5 +15,5 @@ public enum OperationType {
       this.operation = operation;
     }
 
-    private String operation;
+    private final String operation;
 }

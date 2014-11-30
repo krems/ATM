@@ -11,6 +11,5 @@ package atm.protocol.messages;
 
     public class ProtocolMessage {
         public ProtocolMessageType messageType;
-        public String sourceId;
-
+        public long sourceId;
     }

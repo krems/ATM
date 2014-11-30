@@ -10,6 +10,5 @@ package atm.protocol.messages;
 public class AccountOperationMessage extends ProtocolMessage {
     public long sessionId;
     public double amount;
-    public String accountId;
     public String toAccountId;
 }

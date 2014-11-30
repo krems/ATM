@@ -13,18 +13,18 @@ import atm.protocol.messages.ProtocolMessage;
  */
 public class ServerConnectionProxy implements Connection {
 
-    private ServerConnectionStub stub;
+    private final ServerConnectionStub stub;
 
     public ServerConnectionProxy(ServerConnectionStub stub) {
         this.stub = stub;
     }
 
-    public void addConnection(ClientConnection connection, String sessionId) {
-      stub.addConnection(connection, sessionId);
+    public void addConnection(ClientConnection connection, long sessionId) {
+        stub.addConnection(connection, sessionId);
     }
 
-    public void removeConnection(ClientConnection connection, String sessionId) {
-      stub.removeConnection(connection, sessionId);
+    public void removeConnection(ClientConnection connection, long sessionId) {
+        stub.removeConnection(connection, sessionId);
     }
 
     public void sendMessage(ProtocolMessage message) {

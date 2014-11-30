@@ -12,7 +12,7 @@ import atm.protocol.ClientConnection;
  */
 public class ATM {
 
-    ClientTransport clientTransport;
+    final ClientTransport clientTransport;
     long sessionId;
     String currentUser;
 

@@ -16,16 +16,16 @@ public class InProcessConnectionImpl implements ClientConnection {
 
     private MessageListener msgListener;
     private SessionListener sessionListener;
-    private ServerConnectionProxy serverConnection;
-    private String connectionId;
+    private final ServerConnectionProxy serverConnection;
+    private final long connectionId;
 
     public  InProcessConnectionImpl (ServerConnectionProxy proxy) {
         serverConnection = proxy;
         connectionId = getConnectionId();
     }
 
-    private String getConnectionId() {
-        return toString();
+    private long getConnectionId() {
+        return System.identityHashCode(this);
     }
 
     public void connect() {

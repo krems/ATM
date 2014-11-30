@@ -2,7 +2,6 @@ package atm.server;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,25 +11,31 @@ import java.util.concurrent.ConcurrentHashMap;
  * To change this template use File | Settings | File Templates.
  */
 public class StorageService {
-    private final Map<String, Account> accountHashMap = new HashMap<>();
-    private final ConcurrentHashMap<Long, Session> sessionHashMap = new ConcurrentHashMap<>();
+    private final Map<String, Account> accountHashMap = new HashMap<>(240000);
+    private final HashMap<Long, Session> sessionHashMap = new HashMap<>(24);
 
-    public Session createSessionById(long sessionId, String userId, String sourceId, byte[] credentials) {
+    public Session createSessionById(long sessionId, String userId, long sourceId, byte[] credentials) {
         Session session = new Session(getOrCreateAccount(userId), sessionId, sourceId, credentials);
-        sessionHashMap.put(sessionId, session);
+        synchronized (sessionHashMap) {
+            sessionHashMap.put(sessionId, session);
+        }
         return session;
     }
 
     public Session lookupSession(long sessionId) {
-        return sessionHashMap.get(sessionId);
+        synchronized (sessionHashMap) {
+            return sessionHashMap.get(sessionId);
+        }
     }
 
     public Session lookupSessionProxyForAccount(String accountId) {
-        return new Session(getOrCreateAccount(accountId), -1, null, null);
+        return new Session(getOrCreateAccount(accountId), -1, -1, null);
     }
 
     public void cleanUpSession(long sessionId) {
-        sessionHashMap.remove(sessionId);
+        synchronized (sessionHashMap) {
+            sessionHashMap.remove(sessionId);
+        }
     }
 
     private Account getOrCreateAccount(String accountId) {

@@ -10,7 +10,7 @@ package atm.server;
 public class Account {
 
     private double balance;
-    private String id;
+    private final String id;
 
     public Account(String id) {
         this.id = id;

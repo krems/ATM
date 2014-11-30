@@ -19,9 +19,9 @@ import java.util.concurrent.BlockingQueue;
  */
 public class ClientTransport implements MessageListener, SessionListener {
 
-    protected ClientConnection protocol;
-
-    private BlockingQueue<ProtocolMessage> responseQueue = new ArrayBlockingQueue<ProtocolMessage>(1);
+    public static final byte[] EMPTY_CREDS = new byte[0];
+    protected final ClientConnection protocol;
+    private final BlockingQueue<ProtocolMessage> responseQueue = new ArrayBlockingQueue<>(1);
 
     public ClientTransport(ClientConnection connection) {
         protocol = connection;
@@ -135,17 +135,12 @@ public class ClientTransport implements MessageListener, SessionListener {
     }
 
     private byte[] encodeCredentials(byte[] password) {
-        byte[] credHolder = new byte[1024];
-        MessageDigest sha256 = null;
-        byte[] passHash = null;
         try {
-            sha256 = MessageDigest.getInstance("SHA-256");
-            passHash = sha256.digest(password);
-            // todo: why?
-            System.arraycopy(passHash, 0, credHolder, 0, passHash.length);
+            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+            return sha256.digest(password);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return credHolder;
+        return EMPTY_CREDS;
     }
 }

@@ -12,11 +12,9 @@ import atm.server.operation.ResultCallback;
  */
 public class TransactionController{
 
-    private TransactionController(){
+    private TransactionController(){}
 
-    }
     public static TransactionController getController() {
-
         return TransactionControllerHolder.instance;
     }
 
@@ -28,7 +26,7 @@ public class TransactionController{
 
 
     private static class TransactionControllerHolder {
-        private static TransactionController instance = new TransactionController();
+        private static final TransactionController instance = new TransactionController();
     }
 
 }

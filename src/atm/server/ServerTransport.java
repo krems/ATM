@@ -112,7 +112,7 @@ public class ServerTransport implements MessageListener {
          return true;
     }
 
-    private Connection connection;
-    private ProcessingService service;
-    private StorageService storage;
+    private final Connection connection;
+    private final ProcessingService service;
+    private final StorageService storage;
 }

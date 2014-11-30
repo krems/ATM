@@ -5,7 +5,7 @@ import atm.protocol.ClientConnection;
 import atm.protocol.MessageListener;
 import atm.protocol.messages.ProtocolMessage;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -15,11 +15,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * To change this template use File | Settings | File Templates.
  */
 public class ServerConnectionStub implements CallbackConnection {
-    private ConcurrentHashMap<String, ClientConnection> connectionMap = new ConcurrentHashMap<String, ClientConnection>(24, 0.75f, 2);
+    private final HashMap<Long, ClientConnection> connectionMap = new HashMap<>(24);
     private MessageListener listener;
 
     public  void sendMessage(ProtocolMessage message) {
-        connectionMap.get(message.sourceId).getMessageListener().onMessage(message);
+        synchronized (connectionMap) {
+            connectionMap.get(message.sourceId).getMessageListener().onMessage(message);
+        }
     }
 
     public void setMessageListener(MessageListener listener) {
@@ -30,11 +32,15 @@ public class ServerConnectionStub implements CallbackConnection {
         return listener;
     }
 
-    public void addConnection(ClientConnection connection,String sessionId) {
-        connectionMap.put(sessionId, connection);
+    public void addConnection(ClientConnection connection, long sessionId) {
+        synchronized (connectionMap) {
+            connectionMap.put(sessionId, connection);
+        }
     }
 
-    public void removeConnection(ClientConnection connection, String sessionId) {
-        connectionMap.remove(sessionId);
+    public void removeConnection(ClientConnection connection, long sessionId) {
+        synchronized (connectionMap) {
+            connectionMap.remove(sessionId);
+        }
     }
 }

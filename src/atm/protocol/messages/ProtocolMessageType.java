@@ -25,6 +25,6 @@ package atm.protocol.messages;
             return msgType;
         }
 
-        private int msgType;
+        private final int msgType;
 
     }

@@ -38,8 +38,8 @@ public class Operation {
         this.value = value;
     }
 
-    protected OperationType operationType;
-    protected Session session1;
-    protected Session session2;
+    protected final OperationType operationType;
+    protected final Session session1;
+    protected final Session session2;
     protected double value;
 }

@@ -6,8 +6,6 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * Created by IntelliJ IDEA.
  * User: shesdmi
@@ -17,9 +15,9 @@ import static org.junit.Assert.assertEquals;
  */
 public class ActorQueue implements Runnable{
 
-    private CountDownLatch finishLatch;
-    private CyclicBarrier startBarrier;
-    private ATM atm;
+    private final CountDownLatch finishLatch;
+    private final CyclicBarrier startBarrier;
+    private final ATM atm;
     private final int queueId;
     private final int queueNum;
     private final int queueDepth;

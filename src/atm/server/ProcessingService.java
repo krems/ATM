@@ -1,12 +1,11 @@
 package atm.server;
 
+import atm.protocol.CallbackConnection;
 import atm.server.operation.Operation;
 import atm.server.operation.ResultCallback;
-import atm.protocol.CallbackConnection;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -21,12 +20,12 @@ public class ProcessingService implements ResultCallback {
     public static final int EXEC_TRIES = 3;
     public static final int COMMIT_TRIES = 3;
 
-    public static final int EXEC_POOL_SIZE = 16;
+    public static final int EXEC_POOL_SIZE = 1;
 
-    private AtomicLong sessionIdGen= new AtomicLong(1);
-    private ServerTransport transport;
+    private final AtomicLong sessionIdGen= new AtomicLong(1);
+    private final ServerTransport transport;
 
-    private Executor executor = Executors.newFixedThreadPool(EXEC_POOL_SIZE);
+    private final Executor executor = Executors.newFixedThreadPool(EXEC_POOL_SIZE);
 
 
 
@@ -76,7 +75,7 @@ public class ProcessingService implements ResultCallback {
     }
 
 
-    private synchronized void validateSession(long sessionId) throws InvalidSessionException{
+    private void validateSession(long sessionId) throws InvalidSessionException{
         double res = 0;
         for(int i = 0; i < 100; i++) {
             res = res + res*i;
