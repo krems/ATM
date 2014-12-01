@@ -58,7 +58,7 @@ public class TreeEntryTest {
         }
         Set<Long> act = new HashSet<>();
 
-        tree.collect(LongObjectHashMap.Entry::getKey, act);
+        tree.collect(LongObjectHashMap.InnerEntry::getKey, act);
 
         assertEquals(exp.size(), act.size());
         exp.forEach((e) -> assertTrue(act.contains(e)));

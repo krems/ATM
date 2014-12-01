@@ -6,13 +6,13 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class LongObjectHashMap<V> {
-    private Entry<V>[] data = new Entry[0];
+    private InnerEntry<V>[] data = new InnerEntry[0];
     private int size = 0;
 
     public LongObjectHashMap() {}
 
     public LongObjectHashMap(int size) {
-        this.data = new Entry[size + size / 3];
+        this.data = new InnerEntry[size + size / 3];
     }
 
     public int size() {
@@ -29,7 +29,7 @@ public class LongObjectHashMap<V> {
 
     public V get(long key) {
         int i = index(key);
-        Entry<V> e = data[i];
+        InnerEntry<V> e = data[i];
         if (e == null) {
             return null;
         }
@@ -41,15 +41,15 @@ public class LongObjectHashMap<V> {
         if (data[i] == null) {
             return insertRootEntry(i, getNewEntry(key, value));
         }
-        Entry<V> e = data[i];
+        InnerEntry<V> e = data[i];
         return e.insert(this, key, value);
     }
 
-    private Entry<V> getNewEntry(long key, V value) {
-        return new Entry<>(key, value);
+    private InnerEntry<V> getNewEntry(long key, V value) {
+        return new LinkedEntry<>(key, value);
     }
 
-    private V insertRootEntry(int i, Entry<V> newEntry) {
+    private V insertRootEntry(int i, InnerEntry<V> newEntry) {
         assert data[i] == null;
         data[i] = newEntry;
         incSize();
@@ -58,7 +58,7 @@ public class LongObjectHashMap<V> {
 
     public V remove(long key) {
         int i = index(key);
-        Entry<V> e = data[i];
+        InnerEntry<V> e = data[i];
         if (e != null) {
             return e.remove(this, i, key);
         }
@@ -87,7 +87,7 @@ public class LongObjectHashMap<V> {
 
     private <T> Set<T> collect(Function<Entry<V>, T> f) {
         Set<T> result = new HashSet<>(size);
-        for (Entry<V> rootEntry : data) {
+        for (InnerEntry<V> rootEntry : data) {
             if (rootEntry != null) {
                 rootEntry.collect(f, result);
             }
@@ -111,28 +111,41 @@ public class LongObjectHashMap<V> {
 
     private void resize() {
         if (size > data.length * 0.75) {
-            Entry<V>[] oldData = data;
-            data = new Entry[data.length * 2];
+            InnerEntry<V>[] oldData = data;
+            data = new InnerEntry[data.length * 2];
             fill(oldData);
         }
         // may be truncate?
     }
 
-    private void fill(Entry<V>[] data) {
-        for (Entry<V> e : data) {
+    private void fill(InnerEntry<V>[] data) {
+        for (InnerEntry<V> e : data) {
             if (e != null) {
                 e.putRecursively(this);
             }
         }
     }
 
+    public static interface Entry<V> {
+        long getKey();
+        V getValue();
+    }
+
+    static abstract class InnerEntry<V> implements Entry<V> {
+        abstract protected V find(long key);
+        abstract protected V insert(LongObjectHashMap<V> table, long key, V value);
+        abstract protected V remove(LongObjectHashMap<V> t, int i, long key);
+        abstract protected <T> void collect(Function<Entry<V>, T> f, Set<T> dest);
+        abstract protected void putRecursively(LongObjectHashMap<V> t);
+    }
+
     // static: ugly, but memory saving
-    public static class Entry<V> {
+    static class LinkedEntry<V> extends InnerEntry<V> {
         protected final long key;
         protected V value;
-        private Entry<V> next;
+        private LinkedEntry<V> next;
 
-        private Entry(long key, V value) {
+        private LinkedEntry(long key, V value) {
             this.key = key;
             this.value = value;
         }
@@ -146,7 +159,7 @@ public class LongObjectHashMap<V> {
         }
 
         protected V find(long key) {
-            Entry<V> e = this;
+            LinkedEntry<V> e = this;
             while (e != null) {
                 if (e.key == key) {
                     return e.value;
@@ -157,8 +170,8 @@ public class LongObjectHashMap<V> {
         }
 
         protected V insert(LongObjectHashMap<V> table, long key, V value) {
-            Entry<V> e = this;
-            Entry<V> oldE = this;
+            LinkedEntry<V> e = this;
+            LinkedEntry<V> oldE = this;
             while (e != null) {
                 oldE = e;
                 if (e.key == key) {
@@ -166,16 +179,16 @@ public class LongObjectHashMap<V> {
                 }
                 e = e.next;
             }
-            return insert(table, oldE, new Entry<>(key, value));
+            return insert(table, oldE, new LinkedEntry<>(key, value));
         }
 
-        private V insert(Entry<V> e, V v) {
+        private V insert(LinkedEntry<V> e, V v) {
             V oldV = e.value;
             e.value = v;
             return oldV;
         }
 
-        private V insert(LongObjectHashMap<V> t, Entry<V> oldE, Entry<V> newE) {
+        private V insert(LongObjectHashMap<V> t, LinkedEntry<V> oldE, LinkedEntry<V> newE) {
             oldE.next = newE;
             t.incSize();
             return null;
@@ -187,9 +200,9 @@ public class LongObjectHashMap<V> {
                 t.decSize();
                 return this.value;
             }
-            Entry<V> e = this;
+            LinkedEntry<V> e = this;
             while (e.next != null) {
-                Entry<V> prev = e;
+                LinkedEntry<V> prev = e;
                 e = e.next;
                 if (e.key == key) {
                     return remove(t, prev, e);
@@ -198,7 +211,7 @@ public class LongObjectHashMap<V> {
             return null;
         }
 
-        private V remove(LongObjectHashMap<V> t, Entry<V> prev, Entry<V> e) {
+        private V remove(LongObjectHashMap<V> t, LinkedEntry<V> prev, LinkedEntry<V> e) {
             V value = e.value;
             prev.next = e.next;
             t.decSize();
@@ -206,7 +219,7 @@ public class LongObjectHashMap<V> {
         }
 
         protected <T> void collect(Function<Entry<V>, T> f, Set<T> dest) {
-            Entry<V> e = this;
+            LinkedEntry<V> e = this;
             while (e != null) {
                 dest.add(f.apply(e));
                 e = e.next;
@@ -214,7 +227,7 @@ public class LongObjectHashMap<V> {
         }
 
         protected void putRecursively(LongObjectHashMap<V> t) {
-            Entry<V> e = this;
+            LinkedEntry<V> e = this;
             while (e != null) {
                 t.put(e.key, e.value);
                 e = e.next;
@@ -222,11 +235,10 @@ public class LongObjectHashMap<V> {
         }
     }
 
-    static class TreeEntry<V> extends Entry<V> {
+    static class TreeEntry<V> extends InnerEntry<V> {
         private RBNode<V> root;
 
         TreeEntry(long key, V value) {
-            super(key, value);
             root = new RBNode<>(key, value, null, true);
         }
 
@@ -516,14 +528,27 @@ public class LongObjectHashMap<V> {
             putRecursively(t, node.right);
         }
 
-        public static class RBNode<V> extends Entry<V> {
+        @Override
+        public long getKey() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public V getValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        static class RBNode<V> implements Entry<V> {
             private boolean isBlack;
             private RBNode<V> parent;
             private RBNode<V> left;
             private RBNode<V> right;
+            private long key;
+            private V value;
 
             public RBNode(long key, V value, RBNode<V> parent, boolean isBlack) {
-                super(key, value);
+                this.key = key;
+                this.value = value;
                 this.parent = parent;
                 this.isBlack = isBlack;
             }
@@ -564,6 +589,16 @@ public class LongObjectHashMap<V> {
 
             public boolean isLeftChild() {
                 return parent != null && parent.left == this;
+            }
+
+            @Override
+            public long getKey() {
+                return key;
+            }
+
+            @Override
+            public V getValue() {
+                return value;
             }
         }
     }
