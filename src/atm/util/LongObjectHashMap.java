@@ -26,13 +26,16 @@ public class LongObjectHashMap<V> {
     public boolean containsKey(long key) {
         return get(key) != null;
     }
-    
+
     public V get(long key) {
         int i = index(key);
         Entry<V> e = data[i];
+        if (e == null) {
+            return null;
+        }
         return e.find(key);
     }
-    
+
     public V put(long key, V value) {
         int i = index(key);
         if (data[i] == null) {
@@ -47,8 +50,7 @@ public class LongObjectHashMap<V> {
     }
 
     private V insertRootEntry(int i, Entry<V> newEntry) {
-        Entry<V> oldEntry = data[i];
-        assert oldEntry == null;
+        assert data[i] == null;
         data[i] = newEntry;
         incSize();
         return null;
@@ -70,7 +72,7 @@ public class LongObjectHashMap<V> {
         size = 0;
         resize();
     }
-    
+
     public Set<Long> keySet() {
         return collect(Entry::getKey);
     }
@@ -118,14 +120,16 @@ public class LongObjectHashMap<V> {
 
     private void fill(Entry<V>[] data) {
         for (Entry<V> e : data) {
-            e.putRecursively(this);
+            if (e != null) {
+                e.putRecursively(this);
+            }
         }
     }
 
     // static: ugly, but memory saving
     public static class Entry<V> {
-        private final long key;
-        private V value;
+        protected final long key;
+        protected V value;
         private Entry<V> next;
 
         private Entry(long key, V value) {
@@ -201,7 +205,7 @@ public class LongObjectHashMap<V> {
             return value;
         }
 
-        private <T> void collect(Function<Entry<V>, T> f, Set<T> dest) {
+        protected <T> void collect(Function<Entry<V>, T> f, Set<T> dest) {
             Entry<V> e = this;
             while (e != null) {
                 dest.add(f.apply(e));
@@ -214,6 +218,346 @@ public class LongObjectHashMap<V> {
             while (e != null) {
                 t.put(e.key, e.value);
                 e = e.next;
+            }
+        }
+    }
+
+    static class TreeEntry<V> extends Entry<V> {
+        private RBNode<V> root;
+
+        TreeEntry(long key, V value) {
+            super(key, value);
+            root = new RBNode<>(key, value, null, true);
+        }
+
+        @Override
+        protected V find(long key) {
+            return find(this.root, key);
+        }
+
+        private V find(RBNode<V> node, long key) {
+            if (node == null) {
+                return null;
+            }
+            if (node.key < key) {
+                return find(node.left, key);
+            }
+            if (node.key == key) {
+                return node.value;
+            }
+            return find(node.right, key);
+        }
+
+        @Override
+        protected V insert(LongObjectHashMap<V> table, long key, V value) {
+            if (this.root == null) {
+                root = new RBNode<>(key, value, null, true);
+                return null;
+            }
+            return insert(root, table, key, value);
+        }
+
+        private V insert(RBNode<V> node, LongObjectHashMap<V> table, long key, V value) {
+            if (node.key == key) {
+                V oldValue = node.value;
+                node.value = value;
+                return oldValue;
+            }
+            if (node.key < key) {
+                if (node.left != null) {
+                    return insert(node.left, table, key, value);
+                } else {
+                    node.left = new RBNode<>(key, value, node, false);
+                    table.incSize();
+                    insert1(node.left);
+                    return null;
+                }
+            } else {
+                if (node.right != null) {
+                    return insert(node.right, table, key, value);
+                } else {
+                    node.right = new RBNode<>(key, value, node, false);
+                    table.incSize();
+                    insert1(node.right);
+                    return null;
+                }
+            }
+        }
+
+        // when inserted vertex is root
+        private void insert1(RBNode<V> node) {
+            if (node.isRoot()) {
+                node.isBlack = true;
+            } else {
+                insert2(node);
+            }
+        }
+
+        // if parent of inserted vertex is black all is right
+        private void insert2(RBNode<V> node) {
+            if (node.parent.isBlack) {
+                return;
+            }
+            insert3(node);
+        }
+
+        // if parent is red and uncle is red
+        private void insert3(RBNode<V> node) {
+            if (node.getUncle() != null && !node.getUncle().isBlack && !node.parent.isBlack) {
+                node.getUncle().isBlack = true;
+                node.parent.isBlack = true;
+                node.getGrandparent().isBlack = false;
+                insert1(node.getGrandparent());
+            } else {
+                insert4(node);
+            }
+        }
+
+        private void insert4(RBNode<V> node) {
+            if (node == node.parent.right && node.parent == node.getGrandparent().left) {
+                rotateLeft(node.parent);
+                node = node.left;
+            } else if (node == node.parent.left && node.parent == node.getGrandparent().right) {
+                rotateRight(node.parent);
+                node = node.right;
+            }
+            insert5(node);
+        }
+
+        private void insert5(RBNode<V> node) {
+            node.parent.isBlack = true;
+            RBNode<V> grandparent = node.getGrandparent();
+            grandparent.isBlack = false;
+            if (node.parent == grandparent.left) {
+                rotateRight(grandparent);
+            } else {
+                rotateLeft(grandparent);
+            }
+        }
+
+        @Override
+        protected V remove(LongObjectHashMap<V> table, int i, long key) {
+            if (root.key == key && root.left == null && root.right == null) {
+                table.data[i] = null;
+                return root.value;
+            }
+            return remove(root, table, key);
+        }
+
+        private V remove(RBNode<V> node, LongObjectHashMap<V> table, long key) {
+            if (node.key == key) {
+                V oldValue = node.value;
+                remove(node);
+                table.decSize();
+                return oldValue;
+            }
+            if (node.key < key) {
+                if (node.left == null) {
+                    return null;
+                }
+                return remove(node.left, table, key);
+            } else {
+                if (node.right == null) {
+                    return null;
+                }
+                return remove(node.right, table, key);
+            }
+        }
+
+        private void remove(RBNode<V> node) {
+            if (node.isLeaf()) {
+                if (node.isLeftChild()) {
+                    node.parent.left = null;
+                } else {
+                    node.parent.right = null;
+                }
+            }
+            RBNode<V> child = node.right.isLeaf() ? node.left : node.right;
+            replaceNode(node, child);
+            if (node.isBlack) {
+                if (child.isBlack) {
+                    remove1(child);
+                } else {
+                    child.isBlack = true;
+                }
+            }
+        }
+
+        private void replaceNode(RBNode<V> toReplace, RBNode<V> withReplace) {
+            if (toReplace.isRoot()) {
+                root = withReplace;
+                return;
+            }
+            if (toReplace.isLeftChild()) {
+                toReplace.parent.left = withReplace;
+            } else {
+                toReplace.parent.right = withReplace;
+            }
+        }
+
+        private void remove1(RBNode<V> node) {
+            if (!node.isRoot()) {
+                remove2(node);
+            }
+        }
+
+        private void remove2(RBNode<V> node) {
+            RBNode<V> sibling = node.getSibling();
+            if (!sibling.isBlack) {
+                node.parent.isBlack = false;
+                sibling.isBlack = true;
+                if (node.isLeftChild()) {
+                    rotateLeft(node.parent);
+                } else {
+                    rotateRight(node.parent);
+                }
+            }
+            remove3(node);
+        }
+
+        private void remove3(RBNode<V> node) {
+            RBNode<V> sibling = node.getSibling();
+            if (node.parent.isBlack && sibling.isBlack && sibling.left.isBlack && sibling.right.isBlack) {
+                sibling.isBlack = false;
+                remove1(node.parent);
+            } else {
+                remove4(node);
+            }
+        }
+
+        private void remove4(RBNode<V> node) {
+            RBNode<V> sibling = node.getSibling();
+            if (!node.parent.isBlack && sibling.isBlack && sibling.left.isBlack && sibling.right.isBlack) {
+                sibling.isBlack = false;
+                node.parent.isBlack = true;
+            } else {
+                remove5(node);
+            }
+        }
+
+        private void remove5(RBNode<V> node) {
+            RBNode<V> sibling = node.getSibling();
+            if  (sibling.isBlack) {
+                if (node.isLeftChild() && sibling.right.isBlack && !sibling.left.isBlack) {
+                    sibling.isBlack = false;
+                    sibling.left.isBlack = true;
+                    rotateRight(sibling);
+                } else if (!node.isLeftChild() && sibling.left.isBlack && !sibling.right.isBlack) {
+                    sibling.isBlack = false;
+                    sibling.right.isBlack = true;
+                    rotateLeft(sibling);
+                }
+            }
+            remove6(node);
+        }
+
+        private void remove6(RBNode<V> node) {
+            RBNode<V> sibling = node.getSibling();
+            sibling.isBlack = node.parent.isBlack;
+            node.parent.isBlack = true;
+            if (node.isLeftChild()) {
+                sibling.right.isBlack = true;
+                rotateLeft(node.parent);
+            } else {
+                sibling.left.isBlack = true;
+                rotateRight(node.parent);
+            }
+        }
+
+        private void rotateRight(RBNode<V> node) {
+            RBNode<V> newRoot = node.left;
+            RBNode<V> rightNephew = node.left.right;
+            newRoot.parent = node.parent;
+            node.parent = newRoot;
+            node.left = rightNephew;
+            newRoot.right = node;
+        }
+
+        private void rotateLeft(RBNode<V> node) {
+            RBNode<V> newRoot = node.right;
+            RBNode<V> leftNephew = node.right.left;
+            newRoot.parent = node.parent;
+            node.parent = newRoot;
+            node.right = leftNephew;
+            newRoot.left = node;
+        }
+
+        @Override
+        protected <T> void collect(Function<Entry<V>, T> f, Set<T> dest) {
+            collect(f, dest, root);
+        }
+
+        private <T> void collect(Function<Entry<V>, T> f, Set<T> dest, RBNode<V> node) {
+            if (node == null) {
+                return;
+            }
+            dest.add(f.apply(node));
+            collect(f, dest, node.left);
+            collect(f, dest, node.right);
+        }
+
+        @Override
+        protected void putRecursively(LongObjectHashMap<V> t) {
+            putRecursively(t, root);
+        }
+
+        private void putRecursively(LongObjectHashMap<V> t, RBNode<V> node) {
+            if (node == null) {
+                return;
+            }
+            t.put(node.key, node.value);
+            putRecursively(t, node.left);
+            putRecursively(t, node.right);
+        }
+
+        public static class RBNode<V> extends Entry<V> {
+            private boolean isBlack;
+            private RBNode<V> parent;
+            private RBNode<V> left;
+            private RBNode<V> right;
+
+            public RBNode(long key, V value, RBNode<V> parent, boolean isBlack) {
+                super(key, value);
+                this.parent = parent;
+                this.isBlack = isBlack;
+            }
+
+            public RBNode<V> getGrandparent() {
+                if (this.parent != null && this.parent.parent != null) {
+                    return this.parent.parent;
+                }
+                return null;
+            }
+
+            public RBNode<V> getUncle() {
+                RBNode<V> grandparent = this.getGrandparent();
+                if (grandparent == null) {
+                    return null;
+                }
+                if (grandparent.left == this.parent) {
+                    return grandparent.right;
+                }
+                return grandparent.left;
+            }
+
+            public RBNode<V> getSibling() {
+                if (this == parent.left) {
+                    return parent.right;
+                } else {
+                    return parent.left;
+                }
+            }
+
+            public boolean isLeaf() {
+                return left == null && right == null;
+            }
+
+            public boolean isRoot() {
+                return parent == null;
+            }
+
+            public boolean isLeftChild() {
+                return parent != null && parent.left == this;
             }
         }
     }
