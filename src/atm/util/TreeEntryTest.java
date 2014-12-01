@@ -14,7 +14,7 @@ public class TreeEntryTest {
     public void test_shouldFindInsertedValues() {
         LongObjectHashMap.TreeEntry<String> tree = new LongObjectHashMap.TreeEntry<>(0, 0 + "");
         LongObjectHashMap<String> mockTable = new LongObjectHashMap<>(0);
-        for (int i = 0; i < 20; i++) {
+        for (int i = 1; i < 20; i++) {
             tree.insert(mockTable, i, i + "");
         }
 
@@ -27,7 +27,7 @@ public class TreeEntryTest {
     public void test_shouldReturnNullForRemoved() {
         LongObjectHashMap.TreeEntry<String> tree = new LongObjectHashMap.TreeEntry<>(0, 0 + "");
         LongObjectHashMap<String> mockTable = new LongObjectHashMap<>(1);
-        for (int i = 0; i < 2000; i++) {
+        for (int i = 1; i < 2000; i++) {
             tree.insert(mockTable, i, i + "");
         }
         for (int i = 0; i < 2000; i++) {

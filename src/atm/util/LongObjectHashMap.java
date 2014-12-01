@@ -239,7 +239,7 @@ public class LongObjectHashMap<V> {
             if (node == null) {
                 return null;
             }
-            if (node.key < key) {
+            if (key < node.key) {
                 return find(node.left, key);
             }
             if (node.key == key) {
@@ -263,7 +263,7 @@ public class LongObjectHashMap<V> {
                 node.value = value;
                 return oldValue;
             }
-            if (node.key < key) {
+            if (key < node.key) {
                 if (node.left != null) {
                     return insert(node.left, table, key, value);
                 } else {
@@ -351,7 +351,7 @@ public class LongObjectHashMap<V> {
                 table.decSize();
                 return oldValue;
             }
-            if (node.key < key) {
+            if (key < node.key) {
                 if (node.left == null) {
                     return null;
                 }
@@ -468,6 +468,9 @@ public class LongObjectHashMap<V> {
             RBNode<V> newRoot = node.left;
             RBNode<V> rightNephew = node.left.right;
             newRoot.parent = node.parent;
+            if (node.isRoot()) {
+                this.root = newRoot;
+            }
             node.parent = newRoot;
             node.left = rightNephew;
             newRoot.right = node;
@@ -477,6 +480,9 @@ public class LongObjectHashMap<V> {
             RBNode<V> newRoot = node.right;
             RBNode<V> leftNephew = node.right.left;
             newRoot.parent = node.parent;
+            if (node.isRoot()) {
+                this.root = newRoot;
+            }
             node.parent = newRoot;
             node.right = leftNephew;
             newRoot.left = node;
