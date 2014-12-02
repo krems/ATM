@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class StorageService {
     private final Map<String, Account> accountHashMap = new HashMap<>(240000);
-    private final LongObjectHashMap<Session> sessionHashMap = new LongObjectHashMap<>(24);
+    private final Map<Long, Session> sessionHashMap = new HashMap<>();
 
     public Session createSessionById(long sessionId, String userId, long sourceId, byte[] credentials) {
         Session session = new Session(getOrCreateAccount(userId), sessionId, sourceId, credentials);

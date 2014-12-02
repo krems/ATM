@@ -12,6 +12,7 @@ import atm.server.operation.ResultCallback;
  * To change this template use File | Settings | File Templates.
  */
 public class Transaction {
+    private static final Object globalLock = new Object();
     private final Operation operation;
     private Account a1 = null, a2 = null;
     private double value;
@@ -34,18 +35,27 @@ public class Transaction {
         } else {
             int a1HashCode = System.identityHashCode(a1);
             int a2HashCode = System.identityHashCode(a2);
-            if (a1HashCode >= a2HashCode) {
+            if (a1HashCode > a2HashCode) {
                 synchronized (a1) {
                     Thread.yield();
                     synchronized (a2) {
                         nonSafeExec();
                     }
                 }
-            } else {
+            } else if (a1HashCode < a2HashCode) {
                 synchronized (a2) {
                     Thread.yield();
                     synchronized (a1) {
                         nonSafeExec();
+                    }
+                }
+            } else {
+                synchronized (globalLock) {
+                    synchronized (a1) {
+                        Thread.yield();
+                        synchronized (a2) {
+                            nonSafeExec();
+                        }
                     }
                 }
             }

@@ -6,6 +6,9 @@ import atm.protocol.MessageListener;
 import atm.protocol.messages.ProtocolMessage;
 import atm.util.LongObjectHashMap;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by IntelliJ IDEA.
  * User: shesdmi
@@ -14,7 +17,7 @@ import atm.util.LongObjectHashMap;
  * To change this template use File | Settings | File Templates.
  */
 public class ServerConnectionStub implements CallbackConnection {
-    private final LongObjectHashMap<ClientConnection> connectionMap = new LongObjectHashMap<>(24);
+    private final Map<Long, ClientConnection> connectionMap = new HashMap<>();
     private MessageListener listener;
 
     public  void sendMessage(ProtocolMessage message) {
