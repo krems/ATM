@@ -7,7 +7,7 @@ package atm.protocol.messages;
  * Time: 3:28 PM
  * To change this template use File | Settings | File Templates.
  */
-public class LogonMessage extends  ProtocolMessage {
+public class LogonMessage extends ProtocolMessage {
     public String userId;
     public byte[] credentials;
     public long sessionId;

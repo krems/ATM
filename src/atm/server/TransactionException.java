@@ -7,11 +7,9 @@ package atm.server;
  * Time: 7:00 PM
  * To change this template use File | Settings | File Templates.
  */
-public class TransactionException extends  Exception {
-
+public class TransactionException extends Exception {
     public TransactionException(String message) {
         super(message);
     }
     public boolean isTemporary;
-
 }

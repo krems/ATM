@@ -13,13 +13,12 @@ import atm.protocol.SessionListener;
  * To change this template use File | Settings | File Templates.
  */
 public class InProcessConnectionImpl implements ClientConnection {
-
     private MessageListener msgListener;
     private SessionListener sessionListener;
     private final ServerConnectionProxy serverConnection;
     private final long connectionId;
 
-    public  InProcessConnectionImpl (ServerConnectionProxy proxy) {
+    public InProcessConnectionImpl(ServerConnectionProxy proxy) {
         serverConnection = proxy;
         connectionId = getConnectionId();
     }

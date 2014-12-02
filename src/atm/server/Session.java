@@ -8,7 +8,6 @@ package atm.server;
  * To change this template use File | Settings | File Templates.
  */
 public class Session {
-
     public Session(Account account, long sessionId, long sourceId, byte[] passHash) {
         this.account = account;
         this.sessionId = sessionId;
@@ -20,11 +19,11 @@ public class Session {
         return account;
     }
 
-    public long getSessionId(){
+    public long getSessionId() {
         return sessionId;
     }
 
-    public long getSourceId(){
+    public long getSourceId() {
         return sourceId;
     }
 

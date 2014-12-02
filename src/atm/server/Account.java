@@ -8,7 +8,6 @@ package atm.server;
  * To change this template use File | Settings | File Templates.
  */
 public class Account {
-
     private double balance;
     private final String id;
 
@@ -17,7 +16,7 @@ public class Account {
     }
 
     public boolean transferTo(Account to, double delta) {
-        if(balance > delta) {
+        if (balance > delta) {
             to.balance = to.balance + delta;
             this.balance = this.balance - delta;
             Thread.yield();
@@ -31,7 +30,7 @@ public class Account {
     }
 
     public boolean withdraw(double delta) {
-        if(balance - delta > 0.00000001) {
+        if (balance - delta > 0.00000001) {
             balance = balance - delta;
             return true;
         }
@@ -45,7 +44,7 @@ public class Account {
     }
 
     public void rollbackToCopy(Account account) {
-        if(id.equals(account.id)) {
+        if (id.equals(account.id)) {
             balance = account.balance;
         }
     }

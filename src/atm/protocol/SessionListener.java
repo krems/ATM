@@ -8,7 +8,6 @@ package atm.protocol;
  * To change this template use File | Settings | File Templates.
  */
 public interface SessionListener {
-
-    public void onConnect(String sessionId);
-    public void onDisconnect(String sessionId, String reason);
+    void onConnect(String sessionId);
+    void onDisconnect(String sessionId, String reason);
 }

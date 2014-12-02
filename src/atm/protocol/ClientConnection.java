@@ -8,12 +8,8 @@ package atm.protocol;
  * To change this template use File | Settings | File Templates.
  */
 public interface ClientConnection extends CallbackConnection {
-
-       void connect();
-       void disconnect();
-
-       void setSessionListener(SessionListener listener);
-
-       SessionListener getSessionListener();
-
+    void connect();
+    void disconnect();
+    void setSessionListener(SessionListener listener);
+    SessionListener getSessionListener();
 }

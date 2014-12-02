@@ -10,5 +10,5 @@ import atm.protocol.messages.ProtocolMessage;
  * To change this template use File | Settings | File Templates.
  */
 public interface MessageListener {
-    public void onMessage(ProtocolMessage message);
+    void onMessage(ProtocolMessage message);
 }

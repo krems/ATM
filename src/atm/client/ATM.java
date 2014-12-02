@@ -11,10 +11,9 @@ import atm.protocol.ClientConnection;
  * To change this template use File | Settings | File Templates.
  */
 public class ATM {
-
-    final ClientTransport clientTransport;
-    long sessionId;
-    String currentUser;
+    private final ClientTransport clientTransport;
+    private long sessionId;
+    private String currentUser;
 
     public ATM(ClientConnection connection) {
         clientTransport = new ClientTransport(connection);
@@ -49,7 +48,5 @@ public class ATM {
     public double getAccountValue() {
         return clientTransport.getAccountValue(sessionId);
     }
-
-
 }
 

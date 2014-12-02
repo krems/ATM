@@ -18,9 +18,8 @@ import java.util.concurrent.BlockingQueue;
  * To change this template use File | Settings | File Templates.
  */
 public class ClientTransport implements MessageListener, SessionListener {
-
-    public static final byte[] EMPTY_CREDS = new byte[0];
-    protected final ClientConnection protocol;
+    private static final byte[] EMPTY_CREDS = new byte[0];
+    private final ClientConnection protocol;
     private final BlockingQueue<ProtocolMessage> responseQueue = new ArrayBlockingQueue<>(1);
 
     public ClientTransport(ClientConnection connection) {
@@ -66,20 +65,20 @@ public class ClientTransport implements MessageListener, SessionListener {
     protected double processGetValueBack() {
         double res = Double.NaN;
         ProtocolMessage message = getMessageBack();
-        if(message !=null && message.messageType.equals(ProtocolMessageType.GETVALUE)) {
-                res = ((AccountOperationMessage)message).amount;
+        if (message != null && message.messageType.equals(ProtocolMessageType.GETVALUE)) {
+            res = ((AccountOperationMessage) message).amount;
         }
         return res;
     }
 
     protected void processAck() {
-      ProtocolMessage message = getMessageBack();
+        ProtocolMessage message = getMessageBack();
     }
 
     private ProtocolMessage getMessageBack() {
-        try{
+        try {
             return responseQueue.take();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return null;

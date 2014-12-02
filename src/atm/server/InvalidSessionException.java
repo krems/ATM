@@ -7,5 +7,4 @@ package atm.server;
  * Time: 6:28 PM
  * To change this template use File | Settings | File Templates.
  */
-public class InvalidSessionException extends Exception{
-}
+public class InvalidSessionException extends Exception{}

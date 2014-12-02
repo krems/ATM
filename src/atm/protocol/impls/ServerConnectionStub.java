@@ -20,7 +20,7 @@ public class ServerConnectionStub implements CallbackConnection {
     private final Map<Long, ClientConnection> connectionMap = new HashMap<>();
     private MessageListener listener;
 
-    public  void sendMessage(ProtocolMessage message) {
+    public void sendMessage(ProtocolMessage message) {
         synchronized (connectionMap) {
             connectionMap.get(message.sourceId).getMessageListener().onMessage(message);
         }

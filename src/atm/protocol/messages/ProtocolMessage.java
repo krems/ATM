@@ -7,9 +7,7 @@ package atm.protocol.messages;
  * Time: 3:25 PM
  * To change this template use File | Settings | File Templates.
  */
-
-
-    public class ProtocolMessage {
-        public ProtocolMessageType messageType;
-        public long sourceId;
-    }
+public class ProtocolMessage {
+    public ProtocolMessageType messageType;
+    public long sourceId;
+}

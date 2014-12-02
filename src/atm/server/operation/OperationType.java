@@ -8,11 +8,10 @@ package atm.server.operation;
  * To change this template use File | Settings | File Templates.
  */
 public enum OperationType {
-
     TRANSFER_FROM("TF"), TRANSFER_TO("TT"), INCREASE("I"), WITHDRAW("R"), GETVALUE("GV");
 
     private OperationType(String operation) {
-      this.operation = operation;
+        this.operation = operation;
     }
 
     private final String operation;

@@ -17,7 +17,6 @@ public class Operation {
         this.setValue(value);
     }
 
-
     public OperationType getOperationType() {
         return operationType;
     }

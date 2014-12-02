@@ -8,6 +8,5 @@ package atm.server.operation;
  * To change this template use File | Settings | File Templates.
  */
 public interface ResultCallback {
-    public void onOperationResult(Operation operation);
-
+    void onOperationResult(Operation operation);
 }

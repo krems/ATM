@@ -16,34 +16,24 @@ import java.util.concurrent.atomic.AtomicLong;
  * To change this template use File | Settings | File Templates.
  */
 public class ProcessingService implements ResultCallback {
-
-    public static final int EXEC_TRIES = 3;
-    public static final int COMMIT_TRIES = 3;
-
-    public static final int EXEC_POOL_SIZE = 1;
-
-    private final AtomicLong sessionIdGen= new AtomicLong(1);
+    private static final int EXEC_POOL_SIZE = 1;
+    private static final Executor executor = Executors.newFixedThreadPool(EXEC_POOL_SIZE);
+    private static final int EXEC_TRIES = 3;
+    private final AtomicLong sessionIdGen = new AtomicLong(1);
     private final ServerTransport transport;
 
-    private final Executor executor = Executors.newFixedThreadPool(EXEC_POOL_SIZE);
-
-
-
-    public ProcessingService(CallbackConnection connection){
-
+    public ProcessingService(CallbackConnection connection) {
         transport = new ServerTransport(this, connection, new StorageService());
-
     }
 
     public long userLogin(Credentials username) {
-       if (validateCredentials(username)) {
-           return issueNewSessionId();
-       }
-       return -1;
+        if (validateCredentials(username)) {
+            return issueNewSessionId();
+        }
+        return -1;
     }
 
     public void userLogout(String sessionId) {
-
     }
 
     public void processOperation(long sessionId, Operation operation) throws InvalidSessionException {
@@ -75,13 +65,13 @@ public class ProcessingService implements ResultCallback {
     }
 
 
-    private void validateSession(long sessionId) throws InvalidSessionException{
+    private void validateSession(long sessionId) throws InvalidSessionException {
         double res = 0;
-        for(int i = 0; i < 100; i++) {
-            res = res + res*i;
+        for (int i = 0; i < 100; i++) {
+            res = res + res * i;
             Thread.yield();
         }
-        if(res < 0 ) {
+        if (res < 0) {
             throw new InvalidSessionException();
         }
     }
@@ -90,13 +80,11 @@ public class ProcessingService implements ResultCallback {
         return true;
     }
 
-
     private long issueNewSessionId() {
         return sessionIdGen.incrementAndGet();
     }
 
-
-    public  void onOperationResult(Operation operation) {
+    public void onOperationResult(Operation operation) {
         transport.publishOperationResult(operation);
     }
 

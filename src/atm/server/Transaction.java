@@ -14,7 +14,7 @@ import atm.server.operation.ResultCallback;
 public class Transaction {
     private static final Object globalLock = new Object();
     private final Operation operation;
-    private Account a1 = null, a2 = null;
+    private Account a1 = null,a2=null;
     private double value;
     private final ResultCallback resultCallback;
 
@@ -71,12 +71,12 @@ public class Transaction {
             case TRANSFER_FROM:
                 break;
             case TRANSFER_TO:
-                if(!a1.transferTo(a2, operation.getValue())) {
-                    throw new TransactionException("Can't perform operation for "+a1.getId());
+                if (!a1.transferTo(a2, operation.getValue())) {
+                    throw new TransactionException("Can't perform operation for " + a1.getId());
                 }
                 break;
             case WITHDRAW:
-                if(!a1.withdraw(operation.getValue())) {
+                if (!a1.withdraw(operation.getValue())) {
                     throw new TransactionException("");
                 }
                 break;

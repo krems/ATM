@@ -41,7 +41,7 @@ public class StorageService {
     }
 
     private Account getOrCreateAccount(String accountId) {
-        synchronized(accountHashMap) {
+        synchronized (accountHashMap) {
             Account res = accountHashMap.get(accountId);
             if (res == null) {
                 res = new Account(accountId);

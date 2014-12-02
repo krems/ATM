@@ -87,15 +87,15 @@ public class ServerTransport implements MessageListener {
     }
 
     public void publishOperationResult(Operation operation) {
-        if(!requiredResponse(operation)) {
+        if (!requiredResponse(operation)) {
             return;
         }
         AccountOperationMessage msg = new AccountOperationMessage();
-        if(operation.getOperationType() != OperationType.GETVALUE) {
+        if (operation.getOperationType() != OperationType.GETVALUE) {
             msg.messageType = ProtocolMessageType.ACK;
         } else {
-           msg.messageType = ProtocolMessageType.GETVALUE;
-           msg.amount = operation.getValue();
+            msg.messageType = ProtocolMessageType.GETVALUE;
+            msg.amount = operation.getValue();
         }
         msg.sourceId = operation.getSession1().getSourceId();
         connection.sendMessage(msg);
@@ -109,7 +109,7 @@ public class ServerTransport implements MessageListener {
     }
 
     private boolean requiredResponse(Operation operation) {
-         return true;
+        return true;
     }
 
     private final Connection connection;

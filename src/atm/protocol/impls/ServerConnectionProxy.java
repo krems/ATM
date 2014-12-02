@@ -12,7 +12,6 @@ import atm.protocol.messages.ProtocolMessage;
  * To change this template use File | Settings | File Templates.
  */
 public class ServerConnectionProxy implements Connection {
-
     private final ServerConnectionStub stub;
 
     public ServerConnectionProxy(ServerConnectionStub stub) {
